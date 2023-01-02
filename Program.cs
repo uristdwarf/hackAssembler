@@ -14,8 +14,9 @@ class Asm
         if (!File.Exists(filename))
         {
             WriteLine("{0} not found", filename);
-            // Exit
+            Environment.Exit(1);
         }
+        WriteLine(Parser.Parse(filename));
         string outputName = OutputName(filename);
         WriteLine("Final output name: {0}", outputName);
     }
