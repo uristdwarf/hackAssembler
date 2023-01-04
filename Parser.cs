@@ -2,7 +2,7 @@ using static System.Console;
 
 public class Parser
 {
-    static Dictionary<string, string> compMap = new Dictionary<string, string>()
+    static Dictionary<string, string> compBits = new Dictionary<string, string>()
     {
         ["0"] = "0101010",
         ["1"] = "0111111",
@@ -44,6 +44,7 @@ public class Parser
             while ((currLine = sr.ReadLine()) != null)
             {
                 string[] comments = currLine.Split("//", 2);
+                // Empty line or comment line
                 if (comments[0] == "")
                 {
                     lc++;
@@ -52,7 +53,9 @@ public class Parser
                 else if (isAddress(comments[0]))
                 {
                     output += addressBinary(comments[0].Split('@')[1]) + "\n";
-                } else {
+                }
+                else
+                {
                     output += "111" + compCommand(comments[0]) + "000" + "000" + "\n";
                 }
                 lc++;
@@ -61,13 +64,13 @@ public class Parser
         return output;
     }
 
-    private static string addressBinary(string val)
+    static string addressBinary(string val)
     {
         string binary = Convert.ToString(Convert.ToInt16(val), 2);
         return addZeroes(binary);
     }
 
-    private static string addZeroes(string binary)
+    static string addZeroes(string binary)
     {
         int toAdd = 16 - binary.Length;
         string s = "0";
@@ -78,30 +81,32 @@ public class Parser
         return s + binary;
     }
 
-    private static bool isAddress(string line)
+    static bool isAddress(string line)
     {
         return line.First() == '@';
     }
 
-    private static string? destCommand(string line)
+    static string? destCommand(string line)
     {
         return "";
     }
 
-    private static string compCommand(string line)
+    static string compCommand(string line)
     {
         var destIndex = line.IndexOf('=');
-        if (destIndex != -1) {
-            line = line.Substring(destIndex + 1);            
+        if (destIndex != -1)
+        {
+            line = line.Substring(destIndex + 1);
         }
         var jumpIndex = line.IndexOf(';');
-        if (jumpIndex != -1) {
+        if (jumpIndex != -1)
+        {
             line = line.Substring(0, jumpIndex);
         }
-        return compMap[line];
+        return compBits[line];
     }
 
-    private static string? jumpCommand(string line)
+    static string? jumpCommand(string line)
     {
         return "";
     }
