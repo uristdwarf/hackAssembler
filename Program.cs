@@ -16,9 +16,9 @@ class Asm
             WriteLine("{0} not found", filename);
             Environment.Exit(1);
         }
-        WriteLine(Parser.Parse(filename));
+        string output = Parser.Parse(filename);
         string outputName = OutputName(filename);
-        WriteLine("Final output name: {0}", outputName);
+        File.WriteAllText(outputName, output);
     }
 
     private static string OutputName(string filename)

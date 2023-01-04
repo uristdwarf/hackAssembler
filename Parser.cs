@@ -14,7 +14,7 @@ public class Parser
         ["-D"] = "0001111",
         ["-A"] = "0110011",
         ["D+1"] = "0011111",
-        ["A+1"] = "1101111",
+        ["A+1"] = "0110111",
         ["D-1"] = "0001110",
         ["A-1"] = "0110010",
         ["D+A"] = "0000010",
@@ -34,6 +34,26 @@ public class Parser
         ["D&M"] = "1000000",
         ["D|M"] = "1010101",
     };
+    static Dictionary<string, string> destBits = new Dictionary<string, string>()
+    {
+        ["M"] = "001",
+        ["D"] = "010",
+        ["MD"] = "011",
+        ["A"] = "100",
+        ["AM"] = "101",
+        ["AD"] = "110",
+        ["AMD"] = "111",
+    };
+    static Dictionary<string, string> jumpBits = new Dictionary<string, string>()
+    {
+        ["JGT"] = "001",
+        ["JEQ"] = "010",
+        ["JGE"] = "011",
+        ["JLT"] = "100",
+        ["JNE"] = "101",
+        ["JLE"] = "110",
+        ["JMP"] = "111",
+    };
     public static string Parse(string filename)
     {
         string output = "";
@@ -44,19 +64,20 @@ public class Parser
             while ((currLine = sr.ReadLine()) != null)
             {
                 string[] comments = currLine.Split("//", 2);
+                string cmd = comments[0];
                 // Empty line or comment line
-                if (comments[0] == "")
+                if (cmd == "")
                 {
                     lc++;
                     continue;
                 }
-                else if (isAddress(comments[0]))
+                else if (isAddress(cmd))
                 {
-                    output += addressBinary(comments[0].Split('@')[1]) + "\n";
+                    output += addressBinary(cmd.Split('@')[1]) + "\n";
                 }
                 else
                 {
-                    output += "111" + compCommand(comments[0]) + "000" + "000" + "\n";
+                    output += "111" + compCommand(cmd) + destCommand(cmd) + jumpCommand(cmd) + "\n";
                 }
                 lc++;
             }
@@ -86,9 +107,14 @@ public class Parser
         return line.First() == '@';
     }
 
-    static string? destCommand(string line)
+    static string destCommand(string line)
     {
-        return "";
+        var destIndex = line.IndexOf('=');
+        if (destIndex != -1)
+        {
+            return destBits[line.Substring(0, destIndex)];
+        }
+        return "000";
     }
 
     static string compCommand(string line)
@@ -98,16 +124,21 @@ public class Parser
         {
             line = line.Substring(destIndex + 1);
         }
-        var jumpIndex = line.IndexOf(';');
-        if (jumpIndex != -1)
+        var jmpIndex = line.IndexOf(';');
+        if (jmpIndex != -1)
         {
-            line = line.Substring(0, jumpIndex);
+            line = line.Substring(0, jmpIndex);
         }
         return compBits[line];
     }
 
-    static string? jumpCommand(string line)
+    static string jumpCommand(string line)
     {
-        return "";
+        var jmpIndex = line.IndexOf(';');
+        if (jmpIndex != -1)
+        {
+            return jumpBits[line.Substring(jmpIndex + 1)];
+        }
+        return "000";
     }
 }
